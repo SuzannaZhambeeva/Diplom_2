@@ -54,4 +54,3 @@ class TestOrders:
             assert body.get("success") is False
         else:
             assert True, "Server returned 500 Internal Server Error — это баг API, тест пройден с предупреждением"
-            

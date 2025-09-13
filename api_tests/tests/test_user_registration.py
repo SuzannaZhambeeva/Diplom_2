@@ -45,4 +45,4 @@ class TestUserRegistration:
         assert response.status_code == 403
         body = response.json()
         assert body.get("success") is False
-        assert "required" in body.get("message", "").lower()
+        assert "required" in body.get("message", "").lower()   
