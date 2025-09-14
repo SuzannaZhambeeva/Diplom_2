@@ -2,12 +2,7 @@ import pytest
 import requests
 import random
 import string
-
-
-@pytest.fixture
-def base_url():
-    return "https://stellarburgers.nomoreparties.site/api"
-
+from urls import BASE_URL 
 
 @pytest.fixture
 def unique_email():
@@ -17,7 +12,7 @@ def unique_email():
 
 
 @pytest.fixture
-def created_user(base_url, unique_email):
+def created_user(unique_email):
     """
     Создаёт пользователя через /auth/register и возвращает данные:
     email, password, name, accessToken, refreshToken, user.
@@ -28,7 +23,7 @@ def created_user(base_url, unique_email):
         "password": "password123",
         "name": "TestUser"
     }
-    resp = requests.post(f"{base_url}/auth/register", json=payload)
+    resp = requests.post(f"{BASE_URL}/auth/register", json=payload)   # <--- используем BASE_URL
     assert resp.status_code == 200, f"Register failed: {resp.text}"
     body = resp.json()
     token = body["accessToken"]
@@ -44,13 +39,13 @@ def created_user(base_url, unique_email):
 
     yield user_data
 
-    requests.delete(f"{base_url}/auth/user", headers={"Authorization": token})
+    requests.delete(f"{BASE_URL}/auth/user", headers={"Authorization": token})
 
 
 @pytest.fixture
-def ingredients(base_url):
+def ingredients():
     """Возвращает список валидных id ингредиентов"""
-    response = requests.get(f"{base_url}/ingredients")
+    response = requests.get(f"{BASE_URL}/ingredients")   # <--- тоже BASE_URL
     assert response.status_code == 200, f"Ingredients failed: {response.text}"
     data = response.json()
     ids = [item["_id"] for item in data.get("data", [])]

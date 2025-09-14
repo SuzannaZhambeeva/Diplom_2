@@ -1,13 +1,15 @@
 import requests
 import allure
+from urls import BASE_URL
+from constants import ERROR_MESSAGE_NO_INGREDIENTS
 
 
 class TestOrders:
 
     @allure.title("Создание заказа с авторизацией и ингредиентами")
-    def test_create_order_with_auth(self, base_url, created_user, ingredients):
+    def test_create_order_with_auth(self, created_user, ingredients):
         response = requests.post(
-            f"{base_url}/orders",
+            f"{BASE_URL}/orders",
             headers={"Authorization": created_user["accessToken"]},
             json={"ingredients": ingredients[:3]}
         )
@@ -17,9 +19,9 @@ class TestOrders:
         assert "order" in body and "name" in body
 
     @allure.title("Создание заказа без авторизации")
-    def test_create_order_without_auth(self, base_url, ingredients):
+    def test_create_order_without_auth(self, ingredients):
         response = requests.post(
-            f"{base_url}/orders",
+            f"{BASE_URL}/orders",
             json={"ingredients": ingredients[:3]}
         )
         assert response.status_code == 200
@@ -28,21 +30,21 @@ class TestOrders:
         assert "order" in body and "name" in body
 
     @allure.title("Создание заказа без ингредиентов")
-    def test_create_order_without_ingredients(self, base_url, created_user):
+    def test_create_order_without_ingredients(self, created_user):
         response = requests.post(
-            f"{base_url}/orders",
+            f"{BASE_URL}/orders",
             headers={"Authorization": created_user["accessToken"]},
             json={"ingredients": []}
         )
         assert response.status_code == 400
         body = response.json()
         assert body.get("success") is False
-        assert "ingredient" in body.get("message", "").lower()
+        assert body.get("message") == ERROR_MESSAGE_NO_INGREDIENTS
 
     @allure.title("Создание заказа с неверным ингредиентом")
-    def test_create_order_with_invalid_ingredient(self, base_url, created_user):
+    def test_create_order_with_invalid_ingredient(self, created_user):
         response = requests.post(
-            f"{base_url}/orders",
+            f"{BASE_URL}/orders",
             headers={"Authorization": created_user["accessToken"]},
             json={"ingredients": ["invalid_id"]}
         )

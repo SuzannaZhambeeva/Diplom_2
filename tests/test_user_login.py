@@ -1,16 +1,18 @@
 import requests
 import allure
+from urls import BASE_URL
+from constants import ERROR_MESSAGE_INCORRECT_CREDENTIALS
 
 
 class TestUserLogin:
 
     @allure.title("Успешная авторизация пользователя")
-    def test_successful_login(self, base_url, created_user):
+    def test_successful_login(self, created_user):
         login_payload = {
             "email": created_user["email"],
             "password": created_user["password"]
         }
-        response = requests.post(f"{base_url}/auth/login", json=login_payload)
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_payload)
 
         assert response.status_code == 200
         body = response.json()
@@ -19,15 +21,14 @@ class TestUserLogin:
         assert body["user"]["email"] == login_payload["email"]
 
     @allure.title("Авторизация с неверным паролем")
-    def test_login_with_wrong_password(self, base_url, created_user):
+    def test_login_with_wrong_password(self, created_user):
         login_payload = {
             "email": created_user["email"],
             "password": "wrongpassword"
         }
-        response = requests.post(f"{base_url}/auth/login", json=login_payload)
+        response = requests.post(f"{BASE_URL}/auth/login", json=login_payload)
 
         assert response.status_code == 401
         body = response.json()
         assert body.get("success") is False
-        assert "incorrect" in body.get("message", "").lower()
-        
+        assert body.get("message") == ERROR_MESSAGE_INCORRECT_CREDENTIALS
